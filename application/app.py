@@ -34,6 +34,19 @@ def updateRank(rank1, rank2, movieTitle):
     except ValueError:
         return [("status",),("error",),]
 
+
+    cur.execute("SELECT title FROM movie")
+
+    unique = 1;
+    for row in cur.fetchall():
+        if row[0] == movieTitle and unique == 1:
+            if unique == 0:
+                return [("status",),("error",),]
+            unique = 0
+
+    if unique == 1:
+        return [("status",),("error",),]
+
     print (rank1, rank2, movieTitle)
 
     return [("status",),("ok",),]
