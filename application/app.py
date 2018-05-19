@@ -16,10 +16,10 @@ def connection():
 def updateRank(rank1, rank2, movieTitle):
 
     # Create a new connection
-    con=connection()
+    con = connection()
 
     # Create a cursor on the connection
-    cur=con.cursor()
+    cur = con.cursor()
 
     try:
         float(rank1)
@@ -66,6 +66,9 @@ def updateRank(rank1, rank2, movieTitle):
     return [("status",),("ok",),]
 
 
+
+
+
 def colleaguesOfColleagues(actorId1, actorId2):
 
     # Create a new connection
@@ -77,6 +80,12 @@ def colleaguesOfColleagues(actorId1, actorId2):
     print (actorId1, actorId2)
 
     return [("movieTitle", "colleagueOfActor1", "colleagueOfActor2", "actor1","actor2",),]
+
+
+
+
+
+
 
 def actorPairs(actorId):
 
@@ -90,6 +99,12 @@ def actorPairs(actorId):
     print (actorId)
 
     return [("actor2Id",),]
+
+
+
+
+
+
 
 def selectTopNactors(n):
 
