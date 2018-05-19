@@ -34,18 +34,32 @@ def updateRank(rank1, rank2, movieTitle):
     except ValueError:
         return [("status",),("error",),]
 
+    sql = "SELECT title , rank FROM movie;"
+    cur.execute(sql)
 
-    cur.execute("SELECT title FROM movie")
-
-    unique = 1;
+    unique = 1; #checks if the movie title is unique
+    movRank = 0.0;
     for row in cur.fetchall():
         if row[0] == movieTitle and unique == 1:
             if unique == 0:
                 return [("status",),("error",),]
             unique = 0
+            movRank = row[1]
 
     if unique == 1:
         return [("status",),("error",),]
+
+    newRank = (movRank + float(rank1) + float(rank2)) / 3.0
+
+    sql = "UPDATE movie SET movie.rank = %f WHERE movie.title = '%s';" % (newRank , movieTitle)
+
+    try:
+        cur.execute(sql) #executes sql
+        con.commit() #commits changes
+    except:
+        con.rollback() #goes back in case of error
+
+    print(movRank , newRank)
 
     print (rank1, rank2, movieTitle)
 
