@@ -49,7 +49,11 @@ def updateRank(rank1, rank2, movieTitle):
     if unique == 1:
         return [("status",),("error",),]
 
-    newRank = (movRank + float(rank1) + float(rank2)) / 3.0
+    if movRank is None:
+        newRank = (float(rank1) + float(rank2)) / 2.0
+    else:
+        newRank = (movRank + float(rank1) + float(rank2)) / 3.0
+
 
     sql = "UPDATE movie SET movie.rank = %f WHERE movie.title = '%s';" % (newRank , movieTitle)
 
