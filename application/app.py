@@ -184,6 +184,7 @@ def colleaguesOfColleagues(actorId1, actorId2):
 
     try:
         cur.execute(sql) #executes sql
+        con.commit() #commits changes
     except:
         con.rollback() #goes back in case of error
 
@@ -245,7 +246,8 @@ def actorPairs(actorId):
 							AND mvhg2.movie_id = mv2.movie_id)
 
 			GROUP BY act2.actor_id
-            HAVING COUNT(DISTINCT gen1.genre_id) = COUNT(DISTINCT gen3.genre_id) AND COUNT(DISTINCT gen1.genre_id) + COUNT(DISTINCT gen4.genre_id) > 7;""" % (int(actorId))
+            HAVING COUNT(DISTINCT gen1.genre_id) = COUNT(DISTINCT gen3.genre_id)
+               AND COUNT(DISTINCT gen1.genre_id) + COUNT(DISTINCT gen4.genre_id) > 7;""" % (int(actorId))
 
     try:
         cur.execute(sql)
@@ -308,6 +310,7 @@ def selectTopNactors(n):
 
     try:
         cur.execute(sql) #executes sql
+        con.commit() #commits changes
     except:
         con.rollback() #goes back in case of error
 
