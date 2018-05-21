@@ -133,6 +133,57 @@ def colleaguesOfColleagues(actorId1, actorId2):
 
     try:
         cur.execute(sql) #executes sql
+        con.commit() #commits changes
+    except:
+        con.rollback() #goes back in case of error
+
+    for i in cur:
+        list.append(i)
+
+    try:
+        int(actorId1)
+    except ValueError:
+        return [("Status",),("Error",),]
+
+    try:
+        int(actorId2)
+    except ValueError:
+        return [("Status",),("Error",),]
+
+    list = [("Movie Title" , "Colleague of Actor_1" , "Colleague of Actor_2" , "Actor 1" , "Actor 2"),]
+
+    sql = """
+              SELECT DISTINCT mv.title , rl1.actor_id , rl2.actor_id , %s , %s
+
+              FROM movie mv , role rl1 , role rl2
+
+              WHERE     rl1.actor_id < rl2.actor_id
+             	    AND rl1.movie_id = rl2.movie_id
+                    AND rl1.actor_id <> %s
+                    AND rl1.actor_id <> %s
+                    AND rl2.actor_id <> %s
+                    AND rl2.actor_id <> %s
+
+            	    AND EXISTS(SELECT DISTINCT rl3.movie_id , rl4.movie_id
+
+                               FROM role nrl1 , role nrl2 , role rl3 , role rl4
+
+                               WHERE     rl3.actor_id = %s
+            					     AND rl4.actor_id = %s
+                                     AND nrl1.actor_id = rl1.actor_id
+                                     AND nrl2.actor_id = rl2.actor_id
+                                     AND rl3.movie_id = nrl1.movie_id
+                                     AND rl4.movie_id = nrl2.movie_id
+                              )
+
+                    AND rl1.movie_id = mv.movie_id
+
+              ORDER BY rl1.actor_id , rl2.actor_id;
+
+          """ % (actorId1 , actorId2 , actorId1 , actorId2 , actorId1 , actorId2 , actorId1 , actorId2)
+
+    try:
+        cur.execute(sql) #executes sql
     except:
         con.rollback() #goes back in case of error
 
