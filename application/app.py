@@ -231,6 +231,44 @@ def actorPairs(actorId):
 
                """ % (int(actorId))
 
+
+        sql3 = """
+                   SELECT rl.actor_id
+
+                   FROM role rl
+
+                   WHERE     NOT EXISTS(SELECT DISTINCT mvhgen.genre_id
+
+                    				    FROM role nrl , movie_has_genre mvhgen
+
+                    				    WHERE 	   nrl.actor_id = rl.actor_id
+                    						  AND rl.movie_id = mvhgen.movie_id
+
+                    						  AND mvhgen.genre_id IN (SELECT DISTINCT mvhgen.genre_id
+
+                    												  FROM role rl , movie_has_genre mvhgen
+
+                    												  WHERE     rl.actor_id = %d
+                    														AND rl.movie_id = mvhgen.movie_id
+                    												 ))
+                         AND (SELECT COUNT(DISTINCT mvhgen.genre_id)
+
+                    		  FROM role nrl , movie_has_genre mvhgen
+
+                    		  WHERE 	nrl.actor_id = rl.actor_id
+                    				AND rl.movie_id = mvhgen.movie_id
+                    		 ) +
+
+                             (SELECT COUNT(DISTINCT mvhgen.genre_id)
+
+                    		  FROM role rl , movie_has_genre mvhgen
+
+                    		  WHERE     rl.actor_id = %d
+                    				AND rl.movie_id = mvhgen.movie_id
+                    		 ) > 7;
+
+              """ % (int(actorId) , int(actorId))
+
     try:
         cur.execute(sql)
     except:
