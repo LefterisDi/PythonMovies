@@ -39,7 +39,6 @@ def updateRank(rank1, rank2, movieTitle):
 
     try:
         cur.execute(sql) #executes sql
-        con.commit() #commits changes
     except:
         con.rollback() #goes back in case of error
 
@@ -140,13 +139,63 @@ def colleaguesOfColleagues(actorId1, actorId2):
     for i in cur:
         list.append(i)
 
+    try:
+        int(actorId1)
+    except ValueError:
+        return [("Status",),("Error",),]
+
+    try:
+        int(actorId2)
+    except ValueError:
+        return [("Status",),("Error",),]
+
+    list = [("Movie Title" , "Colleague of Actor_1" , "Colleague of Actor_2" , "Actor 1" , "Actor 2"),]
+
+    sql = """
+              SELECT DISTINCT mv.title , rl1.actor_id , rl2.actor_id , %s , %s
+
+              FROM movie mv , role rl1 , role rl2
+
+              WHERE     rl1.actor_id < rl2.actor_id
+             	    AND rl1.movie_id = rl2.movie_id
+                    AND rl1.actor_id <> %s
+                    AND rl1.actor_id <> %s
+                    AND rl2.actor_id <> %s
+                    AND rl2.actor_id <> %s
+
+            	    AND EXISTS(SELECT DISTINCT rl3.movie_id , rl4.movie_id
+
+                               FROM role nrl1 , role nrl2 , role rl3 , role rl4
+
+                               WHERE     rl3.actor_id = %s
+            					     AND rl4.actor_id = %s
+                                     AND nrl1.actor_id = rl1.actor_id
+                                     AND nrl2.actor_id = rl2.actor_id
+                                     AND rl3.movie_id = nrl1.movie_id
+                                     AND rl4.movie_id = nrl2.movie_id
+                              )
+
+                    AND rl1.movie_id = mv.movie_id
+
+              ORDER BY rl1.actor_id , rl2.actor_id;
+
+          """ % (actorId1 , actorId2 , actorId1 , actorId2 , actorId1 , actorId2 , actorId1 , actorId2)
+
+    try:
+        cur.execute(sql) #executes sql
+        con.commit() #commits changes
+    except:
+        con.rollback() #goes back in case of error
+
+    for i in cur:
+        list.append(i)
+
     print (actorId1, actorId2)
 
     cur.close()
     con.close()
 
     return list;
-
 
 
 
@@ -160,10 +209,66 @@ def actorPairs(actorId):
     # Create a cursor on the connection
     cur=con.cursor()
 
+    sql = """SELECT DISTINCT act2.actor_id
+             FROM actor act1 , actor act2 ,
+                  role rl1 ,  role rl3 , role rl4 ,
+                  movie mv1 ,movie mv3 , movie mv4 ,
+                  genre gen1 ,  genre gen3 , genre gen4 ,
+                  movie_has_genre mvhg1  ,movie_has_genre mvhg3 , movie_has_genre mvhg4
 
-    print (actorId)
+             WHERE  act1.actor_id = %d
+             AND	rl1.actor_id = act1.actor_id
+             AND	rl1.movie_id = mv1.movie_id
+             AND    mvhg1.genre_id = gen1.genre_id
+             AND    mvhg1.movie_id = mv1.movie_id
 
-    return [("actor2Id",),]
+			 AND	rl3.actor_id = act1.actor_id
+             AND	rl3.movie_id = mv3.movie_id
+             AND    mvhg3.genre_id = gen3.genre_id
+             AND    mvhg3.movie_id = mv3.movie_id
+
+			 AND	rl4.actor_id = act2.actor_id
+             AND	rl4.movie_id = mv4.movie_id
+             AND    mvhg4.genre_id = gen4.genre_id
+             AND    mvhg4.movie_id = mv4.movie_id
+
+	         AND NOT EXISTS(SELECT gen2.genre_id
+							FROM 	role rl2 ,
+									movie mv2 ,
+									genre gen2 ,
+									movie_has_genre mvhg2
+
+							WHERE gen1.genre_id = gen2.genre_id
+                            AND	rl2.actor_id = act2.actor_id
+							AND	rl2.movie_id = mv2.movie_id
+							AND mvhg2.genre_id = gen2.genre_id
+							AND mvhg2.movie_id = mv2.movie_id)
+
+			GROUP BY act2.actor_id
+            HAVING COUNT(DISTINCT gen1.genre_id) = COUNT(DISTINCT gen3.genre_id)
+               AND COUNT(DISTINCT gen1.genre_id) + COUNT(DISTINCT gen4.genre_id) > 7;""" % (int(actorId))
+
+    try:
+        cur.execute(sql)
+    except:
+        return [("status",),("error",),]
+
+    NameList = []
+    for row in cur.fetchall():
+        NameList.append(row[0])
+
+    print ("actor2Id")
+
+    i = 0
+    while i<len(NameList):
+        print (NameList[i])
+        i = i +1
+
+    cur.close()
+    con.close()
+
+    return [("actor2Id",),(NameList,),]
+
 
 
 
