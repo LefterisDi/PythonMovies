@@ -36,7 +36,12 @@ def updateRank(rank1, rank2, movieTitle):
         return [("Status",),("Error",),]
 
     sql = "SELECT title , rank FROM movie;"
-    cur.execute(sql)
+
+    try:
+        cur.execute(sql) #executes sql
+        con.commit() #commits changes
+    except:
+        con.rollback() #goes back in case of error
 
     unique = 1; #checks if the movie title is unique
     movRank = 0.0;
@@ -68,6 +73,9 @@ def updateRank(rank1, rank2, movieTitle):
 
     print (rank1, rank2, movieTitle)
 
+    cur.close()
+    con.close()
+
     return [("Status",),("Ok!",),]
 
 
@@ -93,7 +101,6 @@ def colleaguesOfColleagues(actorId1, actorId2):
         return [("Status",),("Error",),]
 
     list = [("Movie Title" , "Colleague of Actor_1" , "Colleague of Actor_2" , "Actor 1" , "Actor 2"),]
-
 
     sql = """
               SELECT DISTINCT mv.title , rl1.actor_id , rl2.actor_id , %s , %s
@@ -125,12 +132,19 @@ def colleaguesOfColleagues(actorId1, actorId2):
 
           """ % (actorId1 , actorId2 , actorId1 , actorId2 , actorId1 , actorId2 , actorId1 , actorId2)
 
-    cur.execute(sql)
+    try:
+        cur.execute(sql) #executes sql
+        con.commit() #commits changes
+    except:
+        con.rollback() #goes back in case of error
 
     for i in cur:
         list.append(i)
 
     print (actorId1, actorId2)
+
+    cur.close()
+    con.close()
 
     return list;
 
@@ -161,11 +175,55 @@ def actorPairs(actorId):
 def selectTopNactors(n):
 
     # Create a new connection
-    con=connection()
+    con = connection()
 
     # Create a cursor on the connection
-    cur=con.cursor()
+    cur = con.cursor()
+
+    try:
+        int(n)
+        if int(n) < 0:
+            return [("Status",),("Error",),]
+    except ValueError:
+        return [("Status",),("Error",),]
+
+    list = [("Genre" , "Actor ID" , "# Movies"),]
+
+
+    sql = """
+              SELECT gen.genre_name , rl.actor_id , COUNT(rl.movie_id)
+
+              FROM genre gen , role rl , movie_has_genre mvhgen
+
+              WHERE     rl.movie_id = mvhgen.movie_id
+            	    AND mvhgen.genre_id = gen.genre_id
+
+              GROUP BY gen.genre_id , rl.actor_id
+
+              ORDER BY gen.genre_name , COUNT(rl.movie_id) DESC;
+          """
+
+    try:
+        cur.execute(sql) #executes sql
+        con.commit() #commits changes
+    except:
+        con.rollback() #goes back in case of error
+
+
+    arr = cur.fetchall()
+    n_cntr = 0
+    currGen = arr[0][0]
+
+    for i,j in zip(range(0,len(arr)) , arr):
+        if arr[i][0] != currGen:
+            n_cntr = 0
+
+        if n_cntr < int(n):
+            list.append(j)
+            n_cntr += 1
+
+        currGen = arr[i][0]
 
     print (n)
 
-    return [("genreName", "actorId", "numberOfMovies"),]
+    return list
