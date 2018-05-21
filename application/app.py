@@ -134,7 +134,6 @@ def colleaguesOfColleagues(actorId1, actorId2):
 
     try:
         cur.execute(sql) #executes sql
-        con.commit() #commits changes
     except:
         con.rollback() #goes back in case of error
 
@@ -205,7 +204,6 @@ def selectTopNactors(n):
 
     try:
         cur.execute(sql) #executes sql
-        con.commit() #commits changes
     except:
         con.rollback() #goes back in case of error
 
@@ -225,5 +223,8 @@ def selectTopNactors(n):
         currGen = arr[i][0]
 
     print (n)
+    
+    cur.close()
+    con.close()
 
     return list
