@@ -233,7 +233,7 @@ def actorPairs(actorId):
 
 
         sql3 = """
-                   SELECT rl.actor_id
+                   SELECT DISTINCT rl.actor_id
 
                    FROM role rl
 
