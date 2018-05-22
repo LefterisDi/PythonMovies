@@ -4,6 +4,7 @@ SELECT * FROM movie;
 
 SELECT * FROM genre;
 
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~  colleaguesOfColleagues  ~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 SELECT DISTINCT mv.title , rl1.actor_id , rl2.actor_id , 159346 , 68424
 
@@ -34,6 +35,11 @@ ORDER BY rl1.actor_id , rl2.actor_id
 ;
 
 
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~  colleaguesOfColleagues  ~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~  !!!!!!!!!!!!!!!!!!!!!!  ~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~  actorPairs  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 SELECT DISTINCT act2.actor_id
 
@@ -202,6 +208,8 @@ WHERE     tmp_rl.actor_id = rl.actor_id
 GROUP BY rl.actor_id HAVING COUNT(DISTINCT mvhgen.genre_id) + COUNT(DISTINCT gvn_mvhgen.genre_id) > 7;
 
                                                   
+
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~  actorPairs  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 
 SELECT DISTINCT mvhgen.genre_id
