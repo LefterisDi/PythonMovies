@@ -207,17 +207,45 @@ WHERE     tmp_rl.actor_id = rl.actor_id
                                                   
 GROUP BY rl.actor_id HAVING COUNT(DISTINCT mvhgen.genre_id) + COUNT(DISTINCT gvn_mvhgen.genre_id) > 7;
 
+
+
+
+
+
+SELECT DISTINCT rl.actor_id
+
+FROM role rl , role tmp_rl , role gvn_rl , movie_has_genre mvhgen , movie_has_genre gvn_mvhgen
+
+WHERE     tmp_rl.actor_id = rl.actor_id
+	  AND tmp_rl.movie_id = mvhgen.movie_id
+      AND gvn_rl.actor_id = 353656
+      AND gvn_rl.movie_id = gvn_mvhgen.movie_id
+
+	  AND (SELECT COUNT(DISTINCT ntmp_mvhgen.genre_id)
+					 
+				     FROM role ntmp_rl , role ngvn_rl , movie_has_genre ntmp_mvhgen , movie_has_genre ngvn_mvhgen
+							 
+				     WHERE 	   ntmp_rl.actor_id = rl.actor_id
+						   AND ntmp_rl.movie_id = ntmp_mvhgen.movie_id
+                           AND ngvn_rl.actor_id = 353656
+                           AND ngvn_rl.movie_id = ngvn_mvhgen.movie_id
+                           AND ntmp_mvhgen.genre_id = ngvn_mvhgen.genre_id
+				   ) = 0
+                                                  
+GROUP BY rl.actor_id HAVING COUNT(DISTINCT mvhgen.genre_id) + COUNT(DISTINCT gvn_mvhgen.genre_id) > 7;
+
                                                   
 
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~  actorPairs  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 
-SELECT DISTINCT mvhgen.genre_id
+SELECT DISTINCT gen.genre_name
 					 
-		   FROM role rl , movie_has_genre mvhgen
+		   FROM role rl , movie_has_genre mvhgen , genre gen
                      
 		   WHERE 	 rl.actor_id = 353656
 				 AND rl.movie_id = mvhgen.movie_id
+                 AND mvhgen.genre_id = gen.genre_id
 ;
 
 
