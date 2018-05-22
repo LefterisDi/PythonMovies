@@ -99,8 +99,6 @@ def colleaguesOfColleagues(actorId1, actorId2):
     except ValueError:
         return [("Status",),("Error",),]
 
-    list = [("Movie Title" , "Colleague of Actor_1" , "Colleague of Actor_2" , "Actor 1" , "Actor 2"),]
-
     sql = """
               SELECT DISTINCT mv.title , rl1.actor_id , rl2.actor_id , %s , %s
 
@@ -136,15 +134,21 @@ def colleaguesOfColleagues(actorId1, actorId2):
     except:
         con.rollback() #goes back in case of error
 
-    for i in cur:
-        list.append(i)
+    list = []
+    for row in cur.fetchall():
+        list.append(row[0])
 
     print (actorId1, actorId2)
+
+    i = 0
+    while i < len(list):
+        print (list[i])
+        i = i + 1
 
     cur.close()
     con.close()
 
-    return list;
+    return [("Movie Title" , "Colleague of Actor_1" , "Colleague of Actor_2" , "Actor 1" , "Actor 2"),(list,),]
 
 
 
@@ -201,76 +205,106 @@ def actorPairs(actorId):
          """ % (int(actorId))
 
 
-         sql2 = """
-                    SELECT DISTINCT rl2.actor_id
+    sql2 = """
+                SELECT DISTINCT rl2.actor_id
 
-                    FROM role rl1 , role rl2 , role rl3 , role rl4 ,
-                         movie_has_genre mvhg1 , movie_has_genre mvhg3 , movie_has_genre mvhg4
+                FROM role rl1 , role rl2 , role rl3 , role rl4 ,
+                     movie_has_genre mvhg1 , movie_has_genre mvhg3 , movie_has_genre mvhg4
 
-                    WHERE     rl1.actor_id = %d
-                          AND rl1.movie_id = mvhg1.movie_id
+                WHERE     rl1.actor_id = %d
+                      AND rl1.movie_id = mvhg1.movie_id
 
-            			  AND rl3.actor_id = rl1.actor_id
-                          AND rl3.movie_id = mvhg3.movie_id
+        			  AND rl3.actor_id = rl1.actor_id
+                      AND rl3.movie_id = mvhg3.movie_id
 
-            			  AND rl4.actor_id = rl2.actor_id
-                          AND rl4.movie_id = mvhg4.movie_id
+        			  AND rl4.actor_id = rl2.actor_id
+                      AND rl4.movie_id = mvhg4.movie_id
 
-            	          AND NOT EXISTS(SELECT mvhg2.genre_id
+        	          AND NOT EXISTS(SELECT mvhg2.genre_id
 
-                                         FROM role rl , movie_has_genre mvhg2
+                                     FROM role rl , movie_has_genre mvhg2
 
-            							 WHERE     mvhg1.genre_id = mvhg2.genre_id
-                    						   AND rl.actor_id = rl2.actor_id
-                                               AND rl.movie_id = mvhg2.movie_id
-                                        )
+        							 WHERE     mvhg1.genre_id = mvhg2.genre_id
+                						   AND rl.actor_id = rl2.actor_id
+                                           AND rl.movie_id = mvhg2.movie_id
+                                    )
 
-                    GROUP BY rl2.actor_id
-                    HAVING COUNT(DISTINCT mvhg1.genre_id) = COUNT(DISTINCT mvhg3.genre_id)
-                       AND COUNT(DISTINCT mvhg1.genre_id) + COUNT(DISTINCT mvhg4.genre_id) > 7;
+                GROUP BY rl2.actor_id
+                HAVING COUNT(DISTINCT mvhg1.genre_id) = COUNT(DISTINCT mvhg3.genre_id)
+                   AND COUNT(DISTINCT mvhg1.genre_id) + COUNT(DISTINCT mvhg4.genre_id) > 7;
 
-               """ % (int(actorId))
+           """ % (int(actorId))
 
 
-        sql3 = """
-                   SELECT DISTINCT rl.actor_id
+    sql3 = """
+               SELECT DISTINCT rl.actor_id
 
-                   FROM role rl
+               FROM role rl
 
-                   WHERE     NOT EXISTS(SELECT DISTINCT mvhgen.genre_id
+               WHERE     NOT EXISTS(SELECT DISTINCT mvhgen.genre_id
 
-                    				    FROM role nrl , movie_has_genre mvhgen
+                				    FROM role nrl , movie_has_genre mvhgen
 
-                    				    WHERE 	   nrl.actor_id = rl.actor_id
-                    						  AND rl.movie_id = mvhgen.movie_id
+                				    WHERE 	   nrl.actor_id = rl.actor_id
+                						  AND rl.movie_id = mvhgen.movie_id
 
-                    						  AND mvhgen.genre_id IN (SELECT DISTINCT mvhgen.genre_id
+                						  AND mvhgen.genre_id IN (SELECT DISTINCT mvhgen.genre_id
 
-                    												  FROM role rl , movie_has_genre mvhgen
+                												  FROM role rl , movie_has_genre mvhgen
 
-                    												  WHERE     rl.actor_id = %d
-                    														AND rl.movie_id = mvhgen.movie_id
-                    												 ))
-                         AND (SELECT COUNT(DISTINCT mvhgen.genre_id)
+                												  WHERE     rl.actor_id = %d
+                														AND rl.movie_id = mvhgen.movie_id
+                												 ))
+                     AND (SELECT COUNT(DISTINCT mvhgen.genre_id)
 
-                    		  FROM role nrl , movie_has_genre mvhgen
+                		  FROM role nrl , movie_has_genre mvhgen
 
-                    		  WHERE 	nrl.actor_id = rl.actor_id
-                    				AND rl.movie_id = mvhgen.movie_id
-                    		 ) +
+                		  WHERE 	nrl.actor_id = rl.actor_id
+                				AND rl.movie_id = mvhgen.movie_id
+                		 ) +
 
-                             (SELECT COUNT(DISTINCT mvhgen.genre_id)
+                         (SELECT COUNT(DISTINCT mvhgen.genre_id)
 
-                    		  FROM role rl , movie_has_genre mvhgen
+                		  FROM role rl , movie_has_genre mvhgen
 
-                    		  WHERE     rl.actor_id = %d
-                    				AND rl.movie_id = mvhgen.movie_id
-                    		 ) > 7;
+                		  WHERE     rl.actor_id = %d
+                				AND rl.movie_id = mvhgen.movie_id
+                		 ) > 7;
 
-              """ % (int(actorId) , int(actorId))
+           """ % (int(actorId) , int(actorId))
+
+    sql4 = """
+               SELECT DISTINCT rl.actor_id
+
+               FROM role rl , role tmp_rl , role gvn_rl , movie_has_genre mvhgen , movie_has_genre gvn_mvhgen
+
+               WHERE     tmp_rl.actor_id = rl.actor_id
+                	 AND tmp_rl.movie_id = mvhgen.movie_id
+                     AND gvn_rl.actor_id = %d
+                     AND gvn_rl.movie_id = gvn_mvhgen.movie_id
+
+                	 AND NOT EXISTS(SELECT DISTINCT mvhgen.genre_id
+
+                				    FROM role nrl , movie_has_genre mvhgen
+
+                				    WHERE 	  nrl.actor_id = rl.actor_id
+                						  AND rl.movie_id = mvhgen.movie_id
+
+                						  AND mvhgen.genre_id IN (SELECT DISTINCT mvhgen.genre_id
+
+                												  FROM role rl , movie_has_genre mvhgen
+
+                												  WHERE     rl.actor_id = %d
+                														AND rl.movie_id = mvhgen.movie_id
+                												 ))
+
+               GROUP BY rl.actor_id HAVING COUNT(DISTINCT mvhgen.genre_id) + COUNT(DISTINCT gvn_mvhgen.genre_id) > 7;
+
+          """ % (int(actorId) , int(actorId))
+
 
     try:
-        cur.execute(sql)
+        cur.execute(sql4)
     except:
         return [("Status",),("Error",),]
 
@@ -307,8 +341,6 @@ def selectTopNactors(n):
     except ValueError:
         return [("Status",),("Error",),]
 
-    list = [("Genre" , "Actor ID" , "# Movies"),]
-
 
     sql = """
               SELECT gen.genre_name , rl.actor_id , COUNT(rl.movie_id)
@@ -333,19 +365,30 @@ def selectTopNactors(n):
     n_cntr = 0
     currGen = arr[0][0]
 
-    for i,j in zip(range(0,len(arr)) , arr):
+    list = []
+    for i,row in zip(range(0,len(arr)) , arr):
         if arr[i][0] != currGen:
             n_cntr = 0
 
         if n_cntr < int(n):
-            list.append(j)
+            list.append(row)
             n_cntr += 1
 
         currGen = arr[i][0]
 
     print (n)
 
+    i = 0
+    while i < len(list):
+        print (list[i])
+        i += 1
+
     cur.close()
     con.close()
 
-    return list
+    return [("Genre" , "Actor ID" , "# Movies"),(list,),]
+
+
+#colleaguesOfColleagues(159346 , 68424)
+#selectTopNactors(1)
+#actorPairs(353656)
