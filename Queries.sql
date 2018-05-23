@@ -308,7 +308,6 @@ ORDER BY gen.genre_name , COUNT(rl.movie_id) DESC;
 
 
 
-
 SELECT rl1.actor_id , rl2.actor_id
 
 FROM role rl1 , role rl2
