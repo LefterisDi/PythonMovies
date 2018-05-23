@@ -134,9 +134,9 @@ def colleaguesOfColleagues(actorId1, actorId2):
     except:
         con.rollback() #goes back in case of error
 
-    list = []
+    list = [("Movie Title" , "Colleague of Actor_1" , "Colleague of Actor_2" , "Actor 1" , "Actor 2"),]
     for row in cur.fetchall():
-        list.append(row[0])
+        list.append(row)
 
     print (actorId1, actorId2)
 
@@ -148,7 +148,7 @@ def colleaguesOfColleagues(actorId1, actorId2):
     cur.close()
     con.close()
 
-    return [("Movie Title" , "Colleague of Actor_1" , "Colleague of Actor_2" , "Actor 1" , "Actor 2"),(list,),]
+    return list
 
 
 
@@ -259,17 +259,44 @@ def actorPairs(actorId):
 
                GROUP BY rl.actor_id HAVING COUNT(DISTINCT mvhgen.genre_id) + COUNT(DISTINCT gvn_mvhgen.genre_id) > 7;
 
+           """ % (int(actorId) , int(actorId))
+
+    sql5 = """
+                SELECT DISTINCT rl.actor_id
+
+                FROM role rl , role tmp_rl , role gvn_rl ,
+                	 movie_has_genre tmp_mvhgen , movie_has_genre gvn_mvhgen
+
+                WHERE     tmp_rl.actor_id = rl.actor_id
+                	  AND tmp_rl.movie_id = tmp_mvhgen.movie_id
+                      AND gvn_rl.actor_id = %d
+                      AND gvn_rl.movie_id = gvn_mvhgen.movie_id
+
+                	  AND (SELECT COUNT(DISTINCT ntmp_mvhgen.genre_id)
+
+                		   FROM role ntmp_rl , role ngvn_rl ,
+                				movie_has_genre ntmp_mvhgen , movie_has_genre ngvn_mvhgen
+
+                		   WHERE 	 ntmp_rl.actor_id = rl.actor_id
+                			     AND ntmp_rl.movie_id = ntmp_mvhgen.movie_id
+                				 AND ngvn_rl.actor_id = %d
+                				 AND ngvn_rl.movie_id = ngvn_mvhgen.movie_id
+                				 AND ntmp_mvhgen.genre_id = ngvn_mvhgen.genre_id
+                		  ) = 0
+
+                GROUP BY rl.actor_id HAVING COUNT(DISTINCT tmp_mvhgen.genre_id) + COUNT(DISTINCT gvn_mvhgen.genre_id) >= 7;
+
           """ % (int(actorId) , int(actorId))
 
 
     try:
-        cur.execute(sql4)
+        cur.execute(sql5)
     except:
         return [("Status",),("Error",),]
 
-    NameList = []
+    NameList = [("Actor ID",),]
     for row in cur.fetchall():
-        NameList.append(row[0])
+        NameList.append(row)
 
     print ("Actor ID")
 
@@ -281,7 +308,7 @@ def actorPairs(actorId):
     cur.close()
     con.close()
 
-    return [("Actor ID",),(NameList,),]
+    return NameList
 
 
 
@@ -324,7 +351,7 @@ def selectTopNactors(n):
     n_cntr = 0
     currGen = arr[0][0]
 
-    list = []
+    list = [("Genre" , "Actor ID" , "# Movies"),]
     for i,row in zip(range(0,len(arr)) , arr):
         if arr[i][0] != currGen:
             n_cntr = 0
@@ -345,7 +372,7 @@ def selectTopNactors(n):
     cur.close()
     con.close()
 
-    return [("Genre" , "Actor ID" , "# Movies"),(list,),]
+    return list
 
 
 #colleaguesOfColleagues(159346 , 68424)
