@@ -6,7 +6,7 @@ SELECT * FROM genre;
 
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~  colleaguesOfColleagues  ~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-SELECT DISTINCT mv.title , rl1.actor_id , rl2.actor_id , 159346 , 68424
+SELECT DISTINCT mv.title , rl1.actor_id , rl2.actor_id , 353656 , 308572
 
 FROM movie mv , role rl1 , role rl2
 
@@ -276,7 +276,7 @@ SELECT DISTINCT gen.genre_name
 					 
 		   FROM role rl , movie_has_genre mvhgen , genre gen
                      
-		   WHERE 	 rl.actor_id = 37040
+		   WHERE 	 rl.actor_id = 22591
 				 AND rl.movie_id = mvhgen.movie_id
                  AND mvhgen.genre_id = gen.genre_id
 ;
@@ -289,7 +289,7 @@ SELECT DISTINCT mvhgen.genre_id
 		   WHERE mvhgen.movie_id = 333856
 ;
 
-SELECT * FROM role;
+SELECT * FROM actor;
 
 
 
@@ -304,7 +304,6 @@ WHERE     rl.movie_id = mvhgen.movie_id
 GROUP BY gen.genre_id , rl.actor_id
 
 ORDER BY gen.genre_name , COUNT(rl.movie_id) DESC;
-
 
 
 

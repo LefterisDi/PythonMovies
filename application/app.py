@@ -4,7 +4,7 @@ import settings
 import sys
 
 def connection():
-    ''' User this function to create your connections '''
+    ''' Use this function to create your connections '''
     con = db.connect(
         settings.mysql_host,
         settings.mysql_user,
@@ -40,9 +40,9 @@ def updateRank(rank1, rank2, movieTitle):
     try:
         cur.execute(sql) #executes sql
     except:
-        con.rollback() #goes back in case of error
+        con.rollback()   #goes back in case of error
 
-    unique = 1; #checks if the movie title is unique
+    unique = 1;          #checks if the movie title is unique
     movRank = 0.0;
     for row in cur.fetchall():
         if row[0] == movieTitle and unique == 1:
@@ -60,13 +60,18 @@ def updateRank(rank1, rank2, movieTitle):
         newRank = (movRank + float(rank1) + float(rank2)) / 3.0
 
 
-    sql = "UPDATE movie SET movie.rank = %f WHERE movie.title = '%s';" % (newRank , movieTitle)
+    sql = """
+              UPDATE movie
+              SET movie.rank = %f
+              WHERE movie.title = '%s';
+          """ % (newRank , movieTitle)
+
 
     try:
         cur.execute(sql) #executes sql
-        con.commit() #commits changes
+        con.commit()     #commits changes
     except:
-        con.rollback() #goes back in case of error
+        con.rollback()   #goes back in case of error
 
     print(movRank , newRank)
 
@@ -129,10 +134,12 @@ def colleaguesOfColleagues(actorId1, actorId2):
 
           """ % (actorId1 , actorId2 , actorId1 , actorId2 , actorId1 , actorId2 , actorId1 , actorId2)
 
+
     try:
         cur.execute(sql) #executes sql
     except:
-        con.rollback() #goes back in case of error
+        con.rollback()   #goes back in case of error
+
 
     list = [("Movie Title" , "Colleague of Actor_1" , "Colleague of Actor_2" , "Actor 1" , "Actor 2"),]
     for row in cur.fetchall():
@@ -189,10 +196,12 @@ def actorPairs(actorId):
 
           """ % (int(actorId) , int(actorId))
 
+
     try:
         cur.execute(sql)
     except:
         return [("Status",),("Error",),]
+
 
     NameList = [("Actor ID",),]
     for row in cur.fetchall():
@@ -244,7 +253,7 @@ def selectTopNactors(n):
     try:
         cur.execute(sql) #executes sql
     except:
-        con.rollback() #goes back in case of error
+        con.rollback()   #goes back in case of error
 
 
     arr = cur.fetchall()
@@ -252,15 +261,15 @@ def selectTopNactors(n):
     currGen = arr[0][0]
 
     list = [("Genre" , "Actor ID" , "# Movies"),]
-    for i,row in zip(range(0,len(arr)) , arr):
-        if arr[i][0] != currGen:
+    for row in arr:
+        if row[0] != currGen:
             n_cntr = 0
 
         if n_cntr < int(n):
             list.append(row)
             n_cntr += 1
 
-        currGen = arr[i][0]
+        currGen = row[0]
 
     print (n)
 
