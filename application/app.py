@@ -111,10 +111,6 @@ def colleaguesOfColleagues(actorId1, actorId2):
 
               WHERE     rl1.actor_id < rl2.actor_id
              	    AND rl1.movie_id = rl2.movie_id
-                    AND rl1.actor_id <> %s
-                    AND rl1.actor_id <> %s
-                    AND rl2.actor_id <> %s
-                    AND rl2.actor_id <> %s
 
             	    AND EXISTS(SELECT DISTINCT rl3.movie_id , rl4.movie_id
 
@@ -122,6 +118,12 @@ def colleaguesOfColleagues(actorId1, actorId2):
 
                                WHERE     rl3.actor_id = %s
             					     AND rl4.actor_id = %s
+
+                                     AND rl1.actor_id <> rl3.actor_id
+                                     AND rl1.actor_id <> rl4.actor_id
+                                     AND rl2.actor_id <> rl3.actor_id
+                                     AND rl2.actor_id <> rl4.actor_id
+
                                      AND nrl1.actor_id = rl1.actor_id
                                      AND nrl2.actor_id = rl2.actor_id
                                      AND rl3.movie_id = nrl1.movie_id
@@ -132,7 +134,7 @@ def colleaguesOfColleagues(actorId1, actorId2):
 
               ORDER BY rl1.actor_id , rl2.actor_id;
 
-          """ % (actorId1 , actorId2 , actorId1 , actorId2 , actorId1 , actorId2 , actorId1 , actorId2)
+          """ % (actorId1 , actorId2 , actorId1 , actorId2)
 
 
     try:
@@ -164,10 +166,10 @@ def colleaguesOfColleagues(actorId1, actorId2):
 def actorPairs(actorId):
 
     # Create a new connection
-    con=connection()
+    con = connection()
 
     # Create a cursor on the connection
-    cur=con.cursor()
+    cur = con.cursor()
 
     sql = """
               SELECT DISTINCT rl.actor_id

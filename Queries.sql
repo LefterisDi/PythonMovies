@@ -1,5 +1,7 @@
 SELECT * FROM actor;
 
+SELECT * FROM role;
+
 SELECT * FROM movie;
 
 SELECT * FROM genre;
@@ -12,17 +14,48 @@ FROM movie mv , role rl1 , role rl2
 
 WHERE     rl1.actor_id < rl2.actor_id
 	  AND rl1.movie_id = rl2.movie_id
-      AND rl1.actor_id <> 353656
-      AND rl1.actor_id <> 308572
-      AND rl2.actor_id <> 353656
-      AND rl2.actor_id <> 308572
+      AND rl1.actor_id <> 310474
+      AND rl1.actor_id <> 50085
+      AND rl2.actor_id <> 310474
+      AND rl2.actor_id <> 50085
 
 	  AND EXISTS(SELECT DISTINCT rl3.movie_id , rl4.movie_id
 				 
                  FROM role nrl1 , role nrl2 , role rl3 , role rl4
                  
-                 WHERE 	   rl3.actor_id = 353656
-					   AND rl4.actor_id = 308572
+                 WHERE 	   rl3.actor_id = 310474
+					   AND rl4.actor_id = 50085
+                       AND nrl1.actor_id = rl1.actor_id
+                       AND nrl2.actor_id = rl2.actor_id
+                       AND rl3.movie_id = nrl1.movie_id
+                       AND rl4.movie_id = nrl2.movie_id
+                )
+
+      AND rl1.movie_id = mv.movie_id
+      
+ORDER BY rl1.actor_id , rl2.actor_id;
+
+
+
+SELECT DISTINCT mv.title , rl1.actor_id , rl2.actor_id , 353656 , 308572
+
+FROM movie mv , role rl1 , role rl2
+
+WHERE     rl1.actor_id < rl2.actor_id
+	  AND rl1.movie_id = rl2.movie_id
+
+	  AND EXISTS(SELECT DISTINCT rl3.movie_id , rl4.movie_id
+				 
+                 FROM role nrl1 , role nrl2 , role rl3 , role rl4
+                 
+                 WHERE 	   rl3.actor_id = 310474
+					   AND rl4.actor_id = 50085
+                       
+                       AND rl1.actor_id <> rl3.actor_id
+                       AND rl1.actor_id <> rl4.actor_id
+                       AND rl2.actor_id <> rl3.actor_id
+                       AND rl2.actor_id <> rl4.actor_id
+                       
                        AND nrl1.actor_id = rl1.actor_id
                        AND nrl2.actor_id = rl2.actor_id
                        AND rl3.movie_id = nrl1.movie_id
@@ -324,7 +357,7 @@ FROM movie mv , role rl , actor act
 
 WHERE 	  rl.movie_id = mv.movie_id
 	  AND rl.actor_id = act.actor_id
-	  AND mv.title = "JFK";
+	  AND mv.title = "Batman Begins";
       
       
 SELECT DISTINCT mv.title
