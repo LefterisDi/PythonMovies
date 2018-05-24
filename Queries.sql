@@ -6,23 +6,23 @@ SELECT * FROM genre;
 
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~  colleaguesOfColleagues  ~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-SELECT DISTINCT mv.title , rl1.actor_id , rl2.actor_id , 159346 , 68424
+SELECT DISTINCT mv.title , rl1.actor_id , rl2.actor_id , 353656 , 308572
 
 FROM movie mv , role rl1 , role rl2
 
 WHERE     rl1.actor_id < rl2.actor_id
 	  AND rl1.movie_id = rl2.movie_id
-      AND rl1.actor_id <> 159346
-      AND rl1.actor_id <> 68424
-      AND rl2.actor_id <> 159346
-      AND rl2.actor_id <> 68424
+      AND rl1.actor_id <> 353656
+      AND rl1.actor_id <> 308572
+      AND rl2.actor_id <> 353656
+      AND rl2.actor_id <> 308572
 
 	  AND EXISTS(SELECT DISTINCT rl3.movie_id , rl4.movie_id
 				 
                  FROM role nrl1 , role nrl2 , role rl3 , role rl4
                  
-                 WHERE 	   rl3.actor_id = 159346
-					   AND rl4.actor_id = 68424
+                 WHERE 	   rl3.actor_id = 353656
+					   AND rl4.actor_id = 308572
                        AND nrl1.actor_id = rl1.actor_id
                        AND nrl2.actor_id = rl2.actor_id
                        AND rl3.movie_id = nrl1.movie_id
@@ -31,8 +31,7 @@ WHERE     rl1.actor_id < rl2.actor_id
 
       AND rl1.movie_id = mv.movie_id
       
-ORDER BY rl1.actor_id , rl2.actor_id
-;
+ORDER BY rl1.actor_id , rl2.actor_id;
 
 
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~  colleaguesOfColleagues  ~~~~~~~~~~~~~~~~~~~~~~~~~~ */
@@ -219,7 +218,7 @@ FROM role rl , role tmp_rl , role gvn_rl ,
 
 WHERE     tmp_rl.actor_id = rl.actor_id
 	  AND tmp_rl.movie_id = tmp_mvhgen.movie_id
-      AND gvn_rl.actor_id = 64724
+      AND gvn_rl.actor_id = 353656
       AND gvn_rl.movie_id = gvn_mvhgen.movie_id
 
 	  AND (SELECT COUNT(DISTINCT ntmp_mvhgen.genre_id)
@@ -229,7 +228,7 @@ WHERE     tmp_rl.actor_id = rl.actor_id
 				 
 		   WHERE 	 ntmp_rl.actor_id = rl.actor_id
 			     AND ntmp_rl.movie_id = ntmp_mvhgen.movie_id
-				 AND ngvn_rl.actor_id = 64724
+				 AND ngvn_rl.actor_id = 353656
 				 AND ngvn_rl.movie_id = ngvn_mvhgen.movie_id
 				 AND ntmp_mvhgen.genre_id = ngvn_mvhgen.genre_id
 		  ) = 0
@@ -277,7 +276,7 @@ SELECT DISTINCT gen.genre_name
 					 
 		   FROM role rl , movie_has_genre mvhgen , genre gen
                      
-		   WHERE 	 rl.actor_id = 37040
+		   WHERE 	 rl.actor_id = 22591
 				 AND rl.movie_id = mvhgen.movie_id
                  AND mvhgen.genre_id = gen.genre_id
 ;
@@ -290,7 +289,7 @@ SELECT DISTINCT mvhgen.genre_id
 		   WHERE mvhgen.movie_id = 333856
 ;
 
-SELECT * FROM role;
+SELECT * FROM actor;
 
 
 
@@ -305,8 +304,6 @@ WHERE     rl.movie_id = mvhgen.movie_id
 GROUP BY gen.genre_id , rl.actor_id
 
 ORDER BY gen.genre_name , COUNT(rl.movie_id) DESC;
-
-
 
 
 
@@ -370,3 +367,4 @@ WHERE NOT EXISTS(SELECT mv.movie_id
 					  AND rl1.actor_id = 48468
 					  AND rl2.actor_id = 54645
                 );
+

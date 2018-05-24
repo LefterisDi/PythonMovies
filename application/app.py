@@ -4,7 +4,7 @@ import settings
 import sys
 
 def connection():
-    ''' User this function to create your connections '''
+    ''' Use this function to create your connections '''
     con = db.connect(
         settings.mysql_host,
         settings.mysql_user,
@@ -40,12 +40,12 @@ def updateRank(rank1, rank2, movieTitle):
     try:
         cur.execute(sql) #executes sql
     except:
-        con.rollback() #goes back in case of error
+        con.rollback()   #goes back in case of error
 
-    unique = 1; #checks if the movie title is unique
+    unique = 1;          #checks if the movie title is unique
     movRank = 0.0;
     for row in cur.fetchall():
-        if row[0] == movieTitle and unique == 1:
+        if row[0] == movieTitle:
             if unique == 0:
                 return [("Status",),("Error",),]
             unique = 0
@@ -60,13 +60,18 @@ def updateRank(rank1, rank2, movieTitle):
         newRank = (movRank + float(rank1) + float(rank2)) / 3.0
 
 
-    sql = "UPDATE movie SET movie.rank = %f WHERE movie.title = '%s';" % (newRank , movieTitle)
+    sql = """
+              UPDATE movie
+              SET movie.rank = %f
+              WHERE movie.title = '%s';
+          """ % (newRank , movieTitle)
+
 
     try:
         cur.execute(sql) #executes sql
-        con.commit() #commits changes
+        con.commit()     #commits changes
     except:
-        con.rollback() #goes back in case of error
+        con.rollback()   #goes back in case of error
 
     print(movRank , newRank)
 
@@ -129,10 +134,12 @@ def colleaguesOfColleagues(actorId1, actorId2):
 
           """ % (actorId1 , actorId2 , actorId1 , actorId2 , actorId1 , actorId2 , actorId1 , actorId2)
 
+
     try:
         cur.execute(sql) #executes sql
     except:
-        con.rollback() #goes back in case of error
+        con.rollback()   #goes back in case of error
+
 
     list = [("Movie Title" , "Colleague of Actor_1" , "Colleague of Actor_2" , "Actor 1" , "Actor 2"),]
     for row in cur.fetchall():
@@ -163,136 +170,38 @@ def actorPairs(actorId):
     cur=con.cursor()
 
     sql = """
-               SELECT DISTINCT act2.actor_id
+              SELECT DISTINCT rl.actor_id
 
-              FROM actor act1 , actor act2 ,
-                   role rl1 ,  role rl3 , role rl4 ,
-                   movie_has_genre mvhg1  ,movie_has_genre mvhg3 , movie_has_genre mvhg4
+              FROM role rl , role tmp_rl , role gvn_rl ,
+                   movie_has_genre tmp_mvhgen , movie_has_genre gvn_mvhgen
 
-              WHERE     act1.actor_id = %d
-                    AND rl1.actor_id = act1.actor_id
-                    AND rl1.movie_id = mvhg1.movie_id
+              WHERE     tmp_rl.actor_id = rl.actor_id
+                    AND tmp_rl.movie_id = tmp_mvhgen.movie_id
+                    AND gvn_rl.actor_id = %d
+                    AND gvn_rl.movie_id = gvn_mvhgen.movie_id
 
-    			    AND rl3.actor_id = act1.actor_id
-                    AND rl3.movie_id = mvhg3.movie_id
+                    AND (SELECT COUNT(DISTINCT ntmp_mvhgen.genre_id)
 
-    			    AND rl4.actor_id = act2.actor_id
-                    AND rl4.movie_id = mvhg4.movie_id
+                		 FROM role ntmp_rl , role ngvn_rl ,
+                			  movie_has_genre ntmp_mvhgen , movie_has_genre ngvn_mvhgen
 
-    	            AND NOT EXISTS(SELECT mvhg2.genre_id
+                		 WHERE     ntmp_rl.actor_id = rl.actor_id
+                 			   AND ntmp_rl.movie_id = ntmp_mvhgen.movie_id
+                			   AND ngvn_rl.actor_id = %d
+                			   AND ngvn_rl.movie_id = ngvn_mvhgen.movie_id
+                			   AND ntmp_mvhgen.genre_id = ngvn_mvhgen.genre_id
+                	    ) = 0
 
-                                   FROM role rl2 , movie_has_genre mvhg2
-
-    							   WHERE     mvhg1.genre_id = mvhg2.genre_id
-
-                                         AND rl2.actor_id = act2.actor_id
-            							 AND rl2.movie_id = mvhg2.movie_id
-                                  )
-
-			 GROUP BY act2.actor_id
-             HAVING COUNT(DISTINCT mvhg1.genre_id) = COUNT(DISTINCT mvhg3.genre_id)
-                AND COUNT(DISTINCT mvhg1.genre_id) + COUNT(DISTINCT mvhg3.genre_id) > 7;
-
-         """ % (int(actorId))
-
-    sql3 = """
-               SELECT DISTINCT rl.actor_id
-
-               FROM role rl
-
-               WHERE     NOT EXISTS(SELECT DISTINCT mvhgen.genre_id
-
-                				    FROM role nrl , movie_has_genre mvhgen
-
-                				    WHERE 	   nrl.actor_id = rl.actor_id
-                						  AND rl.movie_id = mvhgen.movie_id
-
-                						  AND mvhgen.genre_id IN (SELECT DISTINCT mvhgen.genre_id
-
-                												  FROM role rl , movie_has_genre mvhgen
-
-                												  WHERE     rl.actor_id = %d
-                														AND rl.movie_id = mvhgen.movie_id
-                												 ))
-                     AND (SELECT COUNT(DISTINCT mvhgen.genre_id)
-
-                		  FROM role nrl , movie_has_genre mvhgen
-
-                		  WHERE 	nrl.actor_id = rl.actor_id
-                				AND rl.movie_id = mvhgen.movie_id
-                		 ) +
-
-                         (SELECT COUNT(DISTINCT mvhgen.genre_id)
-
-                		  FROM role rl , movie_has_genre mvhgen
-
-                		  WHERE     rl.actor_id = %d
-                				AND rl.movie_id = mvhgen.movie_id
-                		 ) > 7;
-
-           """ % (int(actorId) , int(actorId))
-
-    sql4 = """
-               SELECT DISTINCT rl.actor_id
-
-               FROM role rl , role tmp_rl , role gvn_rl , movie_has_genre mvhgen , movie_has_genre gvn_mvhgen
-
-               WHERE     tmp_rl.actor_id = rl.actor_id
-                	 AND tmp_rl.movie_id = mvhgen.movie_id
-                     AND gvn_rl.actor_id = %d
-                     AND gvn_rl.movie_id = gvn_mvhgen.movie_id
-
-                	 AND NOT EXISTS(SELECT DISTINCT mvhgen.genre_id
-
-                				    FROM role nrl , movie_has_genre mvhgen
-
-                				    WHERE 	  nrl.actor_id = rl.actor_id
-                						  AND rl.movie_id = mvhgen.movie_id
-
-                						  AND mvhgen.genre_id IN (SELECT DISTINCT mvhgen.genre_id
-
-                												  FROM role rl , movie_has_genre mvhgen
-
-                												  WHERE     rl.actor_id = %d
-                														AND rl.movie_id = mvhgen.movie_id
-                												 ))
-
-               GROUP BY rl.actor_id HAVING COUNT(DISTINCT mvhgen.genre_id) + COUNT(DISTINCT gvn_mvhgen.genre_id) > 7;
-
-           """ % (int(actorId) , int(actorId))
-
-    sql5 = """
-                SELECT DISTINCT rl.actor_id
-
-                FROM role rl , role tmp_rl , role gvn_rl ,
-                	 movie_has_genre tmp_mvhgen , movie_has_genre gvn_mvhgen
-
-                WHERE     tmp_rl.actor_id = rl.actor_id
-                	  AND tmp_rl.movie_id = tmp_mvhgen.movie_id
-                      AND gvn_rl.actor_id = %d
-                      AND gvn_rl.movie_id = gvn_mvhgen.movie_id
-
-                	  AND (SELECT COUNT(DISTINCT ntmp_mvhgen.genre_id)
-
-                		   FROM role ntmp_rl , role ngvn_rl ,
-                				movie_has_genre ntmp_mvhgen , movie_has_genre ngvn_mvhgen
-
-                		   WHERE 	 ntmp_rl.actor_id = rl.actor_id
-                			     AND ntmp_rl.movie_id = ntmp_mvhgen.movie_id
-                				 AND ngvn_rl.actor_id = %d
-                				 AND ngvn_rl.movie_id = ngvn_mvhgen.movie_id
-                				 AND ntmp_mvhgen.genre_id = ngvn_mvhgen.genre_id
-                		  ) = 0
-
-                GROUP BY rl.actor_id HAVING COUNT(DISTINCT tmp_mvhgen.genre_id) + COUNT(DISTINCT gvn_mvhgen.genre_id) >= 7;
+              GROUP BY rl.actor_id HAVING COUNT(DISTINCT tmp_mvhgen.genre_id) + COUNT(DISTINCT gvn_mvhgen.genre_id) >= 7;
 
           """ % (int(actorId) , int(actorId))
 
 
     try:
-        cur.execute(sql5)
+        cur.execute(sql)
     except:
         return [("Status",),("Error",),]
+
 
     NameList = [("Actor ID",),]
     for row in cur.fetchall():
@@ -344,7 +253,7 @@ def selectTopNactors(n):
     try:
         cur.execute(sql) #executes sql
     except:
-        con.rollback() #goes back in case of error
+        con.rollback()   #goes back in case of error
 
 
     arr = cur.fetchall()
@@ -352,15 +261,15 @@ def selectTopNactors(n):
     currGen = arr[0][0]
 
     list = [("Genre" , "Actor ID" , "# Movies"),]
-    for i,row in zip(range(0,len(arr)) , arr):
-        if arr[i][0] != currGen:
+    for row in arr:
+        if row[0] != currGen:
             n_cntr = 0
 
         if n_cntr < int(n):
             list.append(row)
             n_cntr += 1
 
-        currGen = arr[i][0]
+        currGen = row[0]
 
     print (n)
 
@@ -373,8 +282,3 @@ def selectTopNactors(n):
     con.close()
 
     return list
-
-
-#colleaguesOfColleagues(159346 , 68424)
-#selectTopNactors(1)
-#actorPairs(353656)
