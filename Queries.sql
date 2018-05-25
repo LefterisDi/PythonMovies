@@ -48,8 +48,8 @@ WHERE     rl1.actor_id < rl2.actor_id
 				 
                  FROM role nrl1 , role nrl2 , role rl3 , role rl4
                  
-                 WHERE 	   rl3.actor_id = 310474
-					   AND rl4.actor_id = 50085
+                 WHERE 	   rl3.actor_id = 353656
+					   AND rl4.actor_id = 308572
                        
                        AND rl1.actor_id <> rl3.actor_id
                        AND rl1.actor_id <> rl4.actor_id
