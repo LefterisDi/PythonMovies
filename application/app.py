@@ -249,7 +249,7 @@ def selectTopNactors(n):
 
               GROUP BY gen.genre_id , rl.actor_id
 
-              ORDER BY gen.genre_name , COUNT(rl.movie_id) DESC;
+              ORDER BY gen.genre_name , COUNT(rl.movie_id) DESC , rl.actor_id;
           """
 
     try:

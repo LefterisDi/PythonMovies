@@ -49,8 +49,8 @@ WHERE     rl1.actor_id < rl2.actor_id
 				 
                  FROM role nrl1 , role nrl2 , role rl3 , role rl4
                  
-                 WHERE 	   rl3.actor_id = 353656
-					   AND rl4.actor_id = 308572
+                 WHERE 	   rl3.actor_id = 16844
+					   AND rl4.actor_id = 16844
                        
                        AND rl1.actor_id <> rl3.actor_id
                        AND rl1.actor_id <> rl4.actor_id
@@ -343,6 +343,8 @@ SELECT * FROM actor;
 
 
 
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~  Top N actors  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
 
 SELECT gen.genre_name , rl.actor_id , COUNT(rl.movie_id)
 
@@ -353,8 +355,10 @@ WHERE     rl.movie_id = mvhgen.movie_id
       
 GROUP BY gen.genre_id , rl.actor_id
 
-ORDER BY gen.genre_name , COUNT(rl.movie_id) DESC;
+ORDER BY gen.genre_name , COUNT(rl.movie_id) DESC , rl.actor_id;
 
+
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~  Top N actors  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 
 
