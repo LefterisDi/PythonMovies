@@ -171,6 +171,13 @@ def actorPairs(actorId):
     # Create a cursor on the connection
     cur = con.cursor()
 
+    try:
+        int(actorId)
+        if int(actorId) < 0:
+            return [("Status",),("Error",),]
+    except ValueError:
+        return [("Status",),("Error",),]
+
     sql = """
               SELECT DISTINCT rl.actor_id
 
