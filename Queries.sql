@@ -12,19 +12,17 @@ SELECT DISTINCT mv.title , rl1.actor_id , rl2.actor_id , 353656 , 308572
 
 FROM movie mv , role rl1 , role rl2
 
-WHERE     rl1.actor_id < rl2.actor_id
+WHERE     rl1.actor_id <> rl2.actor_id
 	  AND rl1.movie_id = rl2.movie_id
-      AND rl1.actor_id <> 310474
-      AND rl1.actor_id <> 50085
-      AND rl2.actor_id <> 310474
-      AND rl2.actor_id <> 50085
+      AND rl1.actor_id <> 22591
+      AND rl2.actor_id <> 3226
 
 	  AND EXISTS(SELECT DISTINCT rl3.movie_id , rl4.movie_id
 				 
                  FROM role nrl1 , role nrl2 , role rl3 , role rl4
                  
-                 WHERE 	   rl3.actor_id = 310474
-					   AND rl4.actor_id = 50085
+                 WHERE 	   rl3.actor_id = 22591
+					   AND rl4.actor_id = 3226
                        AND nrl1.actor_id = rl1.actor_id
                        AND nrl2.actor_id = rl2.actor_id
                        AND rl3.movie_id = nrl1.movie_id
@@ -42,25 +40,23 @@ SELECT DISTINCT mv.title , rl1.actor_id , rl2.actor_id , 353656 , 308572
 
 FROM movie mv , role rl1 , role rl2
 
-WHERE     rl1.actor_id < rl2.actor_id
+WHERE     rl1.actor_id <> rl2.actor_id
 	  AND rl1.movie_id = rl2.movie_id
+      
+	  AND rl1.actor_id <> 22591
+      AND rl2.actor_id <> 3226
 
 	  AND EXISTS(SELECT DISTINCT rl3.movie_id , rl4.movie_id
 				 
                  FROM role nrl1 , role nrl2 , role rl3 , role rl4
                  
-                 WHERE 	   rl3.actor_id = 353656
-					   AND rl4.actor_id = 308572
-                       
-                       AND rl1.actor_id <> rl3.actor_id
-                       AND rl1.actor_id <> rl4.actor_id
-                       AND rl2.actor_id <> rl3.actor_id
-                       AND rl2.actor_id <> rl4.actor_id
+                 WHERE 	   rl3.actor_id = 22591
+					   AND rl4.actor_id = 3226
                        
                        AND nrl1.actor_id = rl1.actor_id
                        AND nrl2.actor_id = rl2.actor_id
-                       AND rl3.movie_id = nrl1.movie_id
-                       AND rl4.movie_id = nrl2.movie_id
+                       AND nrl1.movie_id = rl3.movie_id
+                       AND nrl2.movie_id = rl4.movie_id
                 )
 
       AND rl1.movie_id = mv.movie_id
@@ -70,18 +66,36 @@ ORDER BY rl1.actor_id , rl2.actor_id;
 
 
 
-SELECT mv.title
+SELECT DISTINCT mv.title , c.actor_id , d.actor_id , 353656 , 308572
 
-FROM role rl1 , role rl2 , role rl3 , role rl4 , movie mv
+FROM movie mv , role c , role d
 
-WHERE     rl1.movie_id = rl3.movie_id
-	  AND rl2.movie_id = rl4.movie_id
-      AND rl1.actor_id < rl3.actor_id
-      AND rl2.actor_id < rl4.actor_id
-      AND rl3.movie_id = mv.movie_id
-      AND rl4.movie_id = mv.movie_id
-      ;
+WHERE     c.movie_id = d.movie_id
+	  AND c.actor_id <> d.actor_id
+      AND c.actor_id <> 22591
+      AND d.actor_id <> 3226
       
+      AND EXISTS (SELECT DISTINCT a.movie_id
+
+				  FROM role a , role tmp_c
+
+				  WHERE     a.actor_id = 22591
+						AND tmp_c.actor_id = c.actor_id
+						AND tmp_c.movie_id = a.movie_id
+				 )
+                  
+      AND EXISTS (SELECT DISTINCT b.movie_id
+
+				  FROM role b , role tmp_d
+
+				  WHERE     b.actor_id = 3226
+					    AND tmp_d.actor_id = d.actor_id
+						AND tmp_d.movie_id = b.movie_id
+				 )
+
+      AND c.movie_id = mv.movie_id
+      
+ORDER BY c.actor_id , d.actor_id;
 
 
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~  colleaguesOfColleagues  ~~~~~~~~~~~~~~~~~~~~~~~~~~ */
@@ -268,7 +282,7 @@ FROM role rl , role tmp_rl , role gvn_rl ,
 
 WHERE     tmp_rl.actor_id = rl.actor_id
 	  AND tmp_rl.movie_id = tmp_mvhgen.movie_id
-      AND gvn_rl.actor_id = 353656
+      AND gvn_rl.actor_id = 3226
       AND gvn_rl.movie_id = gvn_mvhgen.movie_id
 
 	  AND (SELECT COUNT(DISTINCT ntmp_mvhgen.genre_id)
@@ -278,7 +292,7 @@ WHERE     tmp_rl.actor_id = rl.actor_id
 				 
 		   WHERE 	 ntmp_rl.actor_id = rl.actor_id
 			     AND ntmp_rl.movie_id = ntmp_mvhgen.movie_id
-				 AND ngvn_rl.actor_id = 353656
+				 AND ngvn_rl.actor_id = 3226
 				 AND ngvn_rl.movie_id = ngvn_mvhgen.movie_id
 				 AND ntmp_mvhgen.genre_id = ngvn_mvhgen.genre_id
 		  ) = 0
@@ -393,14 +407,33 @@ WHERE     rl1.actor_id = 22591
 ORDER BY mv.title
       ;
       
+      
+      
+      
+SELECT DISTINCT mv.title
+
+FROM movie mv , role rl1
+
+WHERE     rl1.actor_id = 22591
+      AND rl1.movie_id = mv.movie_id
+
+ORDER BY mv.title
+      ;
+      
+      
+      
+SELECT * FROM movie;
+
 
 
 SELECT DISTINCT mv.title
 
-FROM movie mv , role rl
+FROM movie mv , role rl1 , role rl2
 
-WHERE     rl.actor_id = 52913
-      AND rl.movie_id = mv.movie_id
+WHERE     rl1.actor_id = 68048
+	  AND rl2.actor_id = 101879
+      AND rl1.movie_id = rl2.movie_id
+      AND rl1.movie_id = mv.movie_id
 
 ORDER BY mv.title
       ;

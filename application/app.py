@@ -105,36 +105,38 @@ def colleaguesOfColleagues(actorId1, actorId2):
         return [("Status",),("Error",),]
 
     sql = """
-              SELECT DISTINCT mv.title , rl1.actor_id , rl2.actor_id , %s , %s
+              SELECT DISTINCT mv.title , c.actor_id , d.actor_id , %s , %s
 
-              FROM movie mv , role rl1 , role rl2
+              FROM movie mv , role c , role d
 
-              WHERE     rl1.actor_id < rl2.actor_id
-             	    AND rl1.movie_id = rl2.movie_id
+              WHERE     c.movie_id = d.movie_id
+            	    AND c.actor_id <> d.actor_id
+                    AND c.actor_id <> %s
+                    AND d.actor_id <> %s
 
-            	    AND EXISTS(SELECT DISTINCT rl3.movie_id , rl4.movie_id
+                    AND EXISTS (SELECT DISTINCT a.movie_id
 
-                               FROM role nrl1 , role nrl2 , role rl3 , role rl4
+            				    FROM role a , role tmp_c
 
-                               WHERE     rl3.actor_id = %s
-            					     AND rl4.actor_id = %s
+            				    WHERE     a.actor_id = %s
+            						  AND tmp_c.actor_id = c.actor_id
+            						  AND tmp_c.movie_id = a.movie_id
+            				   )
 
-                                     AND rl1.actor_id <> rl3.actor_id
-                                     AND rl1.actor_id <> rl4.actor_id
-                                     AND rl2.actor_id <> rl3.actor_id
-                                     AND rl2.actor_id <> rl4.actor_id
+                    AND EXISTS (SELECT DISTINCT b.movie_id
 
-                                     AND nrl1.actor_id = rl1.actor_id
-                                     AND nrl2.actor_id = rl2.actor_id
-                                     AND rl3.movie_id = nrl1.movie_id
-                                     AND rl4.movie_id = nrl2.movie_id
-                              )
+            				    FROM role b , role tmp_d
 
-                    AND rl1.movie_id = mv.movie_id
+            				    WHERE     b.actor_id = %s
+            					      AND tmp_d.actor_id = d.actor_id
+            						  AND tmp_d.movie_id = b.movie_id
+            				   )
 
-              ORDER BY rl1.actor_id , rl2.actor_id;
+                    AND c.movie_id = mv.movie_id
 
-          """ % (actorId1 , actorId2 , actorId1 , actorId2)
+              ORDER BY c.actor_id , d.actor_id;
+
+          """ % (actorId1 , actorId2 , actorId1 , actorId2 , actorId1 , actorId2)
 
 
     try:
