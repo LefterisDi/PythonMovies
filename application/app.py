@@ -96,11 +96,15 @@ def colleaguesOfColleagues(actorId1, actorId2):
 
     try:
         int(actorId1)
+        if int(actorId1) < 0:
+            return [("Status",),("Error",),]
     except ValueError:
         return [("Status",),("Error",),]
 
     try:
         int(actorId2)
+        if int(actorId2) < 0:
+            return [("Status",),("Error",),]
     except ValueError:
         return [("Status",),("Error",),]
 
