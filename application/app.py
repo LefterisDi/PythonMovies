@@ -35,7 +35,7 @@ def updateRank(rank1, rank2, movieTitle):
     except ValueError:
         return [("Status",),("Error",),]
 
-    sql = "SELECT title , rank FROM movie;"
+    sql = "SELECT movie.title , movie.rank FROM movie;"
 
     try:
         cur.execute(sql) #executes sql
