@@ -23,14 +23,14 @@ def updateRank(rank1, rank2, movieTitle):
 
     try:
         float(rank1)
-        if float(rank1) > 10.0 or float(rank1) < 0.0:
+        if float(rank1) < 0.0 or float(rank1) > 10.0:
             return [("Status",),("Error",),]
     except ValueError:
         return [("Status",),("Error",),]
 
     try:
         float(rank2)
-        if float(rank2) > 10.0 or float(rank2) < 0.0:
+        if float(rank2) < 0.0 or float(rank2) > 10.0:
             return [("Status",),("Error",),]
     except ValueError:
         return [("Status",),("Error",),]
@@ -211,7 +211,7 @@ def actorPairs(actorId):
     try:
         cur.execute(sql)
     except:
-        return [("Status",),("Error",),]
+        con.rollback()   #goes back in case of error
 
 
     NameList = [("Actor ID",),]

@@ -66,7 +66,7 @@ ORDER BY rl1.actor_id , rl2.actor_id;
 
 
 
-SELECT DISTINCT mv.title , c.actor_id , d.actor_id , 353656 , 308572
+SELECT DISTINCT mv.title , c.actor_id , d.actor_id , 22591 , 3226
 
 FROM movie mv , role c , role d
 
