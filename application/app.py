@@ -272,17 +272,17 @@ def selectTopNactors(n):
 
 
     arr = cur.fetchall()
-    n_cntr = 0
+    cntr = 0
     currGen = arr[0][0]
 
     list = [("Genre" , "Actor ID" , "# Movies"),]
     for row in arr:
         if row[0] != currGen:
-            n_cntr = 0
+            cntr = 0
 
-        if n_cntr < int(n):
+        if cntr < int(n):
             list.append(row)
-            n_cntr += 1
+            cntr += 1
 
         currGen = row[0]
 
